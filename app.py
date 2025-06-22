@@ -93,7 +93,18 @@ def edit_meal(meal_id):
     return jsonify({'message': 'Não é possível editar refeições de outro usuário.'}), 400
   return jsonify({'message': 'Refeição não encontrada.'}), 400
 
+@app.route('/delete_meal/<int:meal_id>', methods=['DELETE'])
+@login_required
+def delete_meal(meal_id):
+  meal = Meal.query.get(meal_id)
 
+  if meal:
+    if current_user.id == meal.user_id:
+      db.session.delete(meal)
+      db.session.commit()
+      return jsonify({'message': 'Refeição deletada com sucesso.'})
+    return jsonify({'message': 'Não é possível deletar a refeição de outro usuário.'}), 400
+  return jsonify({'message': 'Refeição não encontrada'}), 400
 
 if __name__ == '__main__':
   app.run(debug=True)
