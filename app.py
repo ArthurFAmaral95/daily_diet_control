@@ -54,5 +54,23 @@ def logout():
   logout_user()
   return jsonify({'message': 'Logout realizado com sucesso.'})
 
+@app.route('/new_meal', methods=['POST'])
+@login_required
+def new_meal():
+  data = request.json
+  meal_name = data.get('meal_name')
+  meal_description = data.get('meal_description')
+  date_time = data.get('date_time')
+  diet_meal = data.get('diet_meal')
+  user_id = current_user.id
+
+  if meal_name and diet_meal is not None:
+    meal = Meal(meal_name=meal_name, meal_description=meal_description, date_time=date_time, diet_meal=diet_meal, user_id=user_id)
+    db.session.add(meal)
+    db.session.commit()
+    return jsonify({'message': 'Refeição criada com sucesso.', 'meal_id': meal.id})
+  
+  return jsonify({'message': 'Dados insuficientes para criar refeição. Favor fornecer nome da refeição e se faz parte da dieta.'}), 400
+
 if __name__ == '__main__':
   app.run(debug=True)
