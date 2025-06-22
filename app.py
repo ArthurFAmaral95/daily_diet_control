@@ -121,5 +121,23 @@ def get_user_meals():
   for meal in meals]
   return jsonify({'message': 'Refeições listada com sucesso.', 'meals': meals_data})
 
+@app.route('/meal/<int:meal_id>', methods=['GET'])
+@login_required
+def get_meal(meal_id):
+  meal = Meal.query.get(meal_id)
+
+  if meal:
+    if meal.user_id == current_user.id:
+      meal_dict = {
+        'id': meal.id,
+        'meal_name': meal.meal_name,
+        'meal_description': meal.meal_description,
+        'date_time': meal.date_time.isoformat(),
+        'diet_meal': meal.diet_meal
+      }
+      return jsonify({'message': 'Refeição retornada com sucesso', 'meal': meal_dict})
+    return jsonify({'message': 'Não é possível retornar informações de refeições de outro usuário'}), 400
+  return jsonify({'message': 'Refeição não encontrada'}), 400
+
 if __name__ == '__main__':
   app.run(debug=True)
