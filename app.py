@@ -106,5 +106,20 @@ def delete_meal(meal_id):
     return jsonify({'message': 'Não é possível deletar a refeição de outro usuário.'}), 400
   return jsonify({'message': 'Refeição não encontrada'}), 400
 
+@app.route('/user_meals', methods=['GET'])
+@login_required
+def get_user_meals():
+  meals = Meal.query.filter_by(user_id=current_user.id).all()
+  meals_data = [
+    {
+      'id': meal.id,
+      'meal_name': meal.meal_name,
+      'meal_description': meal.meal_description,
+      'date_time': meal.date_time.isoformat(),
+      'diet_meal': meal.diet_meal
+    }
+  for meal in meals]
+  return jsonify({'message': 'Refeições listada com sucesso.', 'meals': meals_data})
+
 if __name__ == '__main__':
   app.run(debug=True)
