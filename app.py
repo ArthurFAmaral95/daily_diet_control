@@ -72,5 +72,28 @@ def new_meal():
   
   return jsonify({'message': 'Dados insuficientes para criar refeição. Favor fornecer nome da refeição e se faz parte da dieta.'}), 400
 
+@app.route('/edit_meal/<int:meal_id>', methods=['POST'])
+@login_required
+def edit_meal(meal_id):
+  data = request.json
+  meal_name = data.get('meal_name')
+  meal_description = data.get('meal_description')
+  date_time = data.get('date_time')
+  diet_meal = data.get('diet_meal')
+
+  meal = Meal.query.filter_by(id=meal_id).first()
+  if meal:
+    if current_user.id == meal.user_id:
+      meal.meal_name = meal_name if meal_name else meal.meal_name
+      meal.meal_description = meal_description if meal_description else meal.meal_description
+      meal.date_time = date_time if date_time else meal.date_time
+      meal.diet_meal = diet_meal if diet_meal is not None else meal.diet_meal
+      db.session.commit()
+      return jsonify({'message': f'Refeição {meal.id} editada com sucesso.'})
+    return jsonify({'message': 'Não é possível editar refeições de outro usuário.'}), 400
+  return jsonify({'message': 'Refeição não encontrada.'}), 400
+
+
+
 if __name__ == '__main__':
   app.run(debug=True)
